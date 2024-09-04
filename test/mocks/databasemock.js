@@ -178,6 +178,30 @@ before(async function () {
 			await setupMockDefaults();
 		});
 	});
+	it('should handle an array of ports and select the first one', async function() {
+        // Mocking nconf.get to return an array of ports
+        sinon.stub(nconf, 'get').withArgs('port').returns([3000, 3001, 3002]);
+
+        const webserver = require('../../src/webserver');
+        const selectedPort = await webserver.listen();
+
+        // Assert that the first port is selected
+        expect(selectedPort).to.equal(3000);
+        sinon.restore();
+    });
+
+    it('should throw an error if the ports array is empty', async function() {
+        sinon.stub(nconf, 'get').withArgs('port').returns([]); // Empty array
+
+        const webserver = require('../../src/webserver');
+
+        try {
+            await webserver.listen();
+        } catch (err) {
+            expect(err.message).to.include('[startup] empty ports array in config.json');
+        }
+        sinon.restore();
+    });
 });
 
 async function setupMockDefaults() {

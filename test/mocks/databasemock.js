@@ -6,9 +6,6 @@
  */
 
 require('../../require-main');
-
-const sinon = require('sinon');
-const { expect } = require('chai');
 const path = require('path');
 const nconf = require('nconf');
 const url = require('url');

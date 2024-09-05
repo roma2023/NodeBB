@@ -98,11 +98,15 @@ Logger.open = function (value) {
 };
 
 Logger.close = function (stream) {
-	if (stream.f !== process.stdout && stream.f) {
-		stream.end();
+	// Check if stream.f is a valid stream and has the 'end' method
+	if (stream.f !== process.stdout && stream.f && typeof stream.f.end === 'function') {
+		stream.f.end(); // Close the stream
+	} else if (stream.f !== process.stdout) {
+		winston.warn('Logger stream is invalid or already closed.');
 	}
 	stream.f = null;
 };
+
 
 Logger.monitorConfig = function (socket, data) {
 	/*

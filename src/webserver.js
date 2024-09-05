@@ -218,12 +218,27 @@ function setupHelmet(app) {
 
 
 function setupFavicon(app) {
+	// Ensure 'brand:favicon' is available or use a default 'favicon.ico'
 	let faviconPath = meta.config['brand:favicon'] || 'favicon.ico';
-	faviconPath = path.join(nconf.get('base_dir'), 'public', faviconPath.replace(/assets\/uploads/, 'uploads'));
+
+	// Ensure 'base_dir' is available, log an error if not
+	const baseDir = nconf.get('base_dir');
+	if (!baseDir) {
+		winston.error('Base directory is not defined in configuration.');
+		return;
+	}
+
+	// Construct the full path for the favicon
+	faviconPath = path.join(baseDir, 'public', faviconPath.replace(/assets\/uploads/, 'uploads'));
+
+	// Check if the favicon file exists before setting it up
 	if (file.existsSync(faviconPath)) {
 		app.use(nconf.get('relative_path'), favicon(faviconPath));
+	} else {
+		winston.warn(`Favicon not found at ${faviconPath}, skipping favicon setup.`);
 	}
 }
+
 
 function configureBodyParser(app) {
 	const urlencodedOpts = nconf.get('bodyParser:urlencoded') || {};
